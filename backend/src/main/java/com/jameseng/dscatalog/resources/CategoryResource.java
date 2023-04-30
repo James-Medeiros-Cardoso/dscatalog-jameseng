@@ -25,7 +25,7 @@ public class CategoryResource {
         return ResponseEntity.ok().body(listDto);
     }*/
 
-    @GetMapping // /categories?page=1&linesPerPage=5&direction=ASC&orderBy=name
+    @GetMapping // categories?page=1&linesPerPage=5&direction=ASC&orderBy=name
     public ResponseEntity<Page<CategoryDTO>> findAll(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "linesPerPage", defaultValue = "12") Integer linesPerPage,
