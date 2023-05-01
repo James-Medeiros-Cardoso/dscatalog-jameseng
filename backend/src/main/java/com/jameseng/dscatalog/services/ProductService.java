@@ -1,8 +1,11 @@
 package com.jameseng.dscatalog.services;
 
 
+import com.jameseng.dscatalog.dto.CategoryDTO;
 import com.jameseng.dscatalog.dto.ProductDTO;
+import com.jameseng.dscatalog.entities.Category;
 import com.jameseng.dscatalog.entities.Product;
+import com.jameseng.dscatalog.repositories.CategoryRepository;
 import com.jameseng.dscatalog.repositories.ProductRepository;
 import com.jameseng.dscatalog.services.exceptions.DatabaseException;
 import com.jameseng.dscatalog.services.exceptions.ResourceNotFoundException;
@@ -15,15 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     /*@Transactional(readOnly = true)
     public List<ProductDTO> findAll() {
@@ -47,7 +51,7 @@ public class ProductService {
     @Transactional
     public ProductDTO insert(ProductDTO productDto) {
         Product product = new Product();
-        // product.setName(productDto.getName());
+        copyDtoToEntity(productDto, product);
         product = productRepository.save(product);
         return new ProductDTO(product);
     }
@@ -56,7 +60,7 @@ public class ProductService {
     public ProductDTO update(Long id, ProductDTO productDto) {
         try {
             Product product = productRepository.getOne(id);
-            // product.setName(productDto.getName());
+            copyDtoToEntity(productDto, product);
             product = productRepository.save(product);
             return new ProductDTO(product);
         } catch (EntityNotFoundException exception) {
@@ -71,6 +75,20 @@ public class ProductService {
             throw new ResourceNotFoundException("ProductService/Entity not found for id = " + id + ".");
         } catch (DataIntegrityViolationException exception) {
             throw new DatabaseException("ProductService/Database Integrity Violation/Id " + id + " can't be deleted.");
+        }
+    }
+
+    private void copyDtoToEntity(ProductDTO productDto, Product product) {
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        product.setImgUrl(productDto.getImgUrl());
+        product.setDate(productDto.getDate());
+
+        product.getCategories().clear(); // limpar lista de categorias
+        for (CategoryDTO categoryDto : productDto.getCategories()) {
+            Category category = categoryRepository.getOne(categoryDto.getId());
+            product.getCategories().add(category);
         }
     }
 }
