@@ -53,7 +53,7 @@ public class ProductService {
         Product product = new Product();
         copyDtoToEntity(productDto, product);
         product = productRepository.save(product);
-        return new ProductDTO(product);
+        return new ProductDTO(product, product.getCategories());
     }
 
     @Transactional
@@ -62,7 +62,7 @@ public class ProductService {
             Product product = productRepository.getOne(id);
             copyDtoToEntity(productDto, product);
             product = productRepository.save(product);
-            return new ProductDTO(product);
+            return new ProductDTO(product, product.getCategories());
         } catch (EntityNotFoundException exception) {
             throw new ResourceNotFoundException("ProductService/Entity not found for id = " + id + ".");
         }
